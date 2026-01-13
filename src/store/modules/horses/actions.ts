@@ -1,0 +1,28 @@
+import type { ActionTree, ActionContext } from 'vuex';
+import type { HorsesState, RootState } from '@/store/types';
+import type { Horse } from '@/domain/models';
+import { HORSE_COLORS, HORSE_NAMES, TOTAL_HORSES } from '@/domain/constants';
+import { randomInt, shuffle } from '@/domain/utils';
+import { MUTATIONS, ACTIONS } from './types';
+
+export const actions: ActionTree<HorsesState, RootState> = {
+	[ACTIONS.GENERATE_POOL]({ commit }: ActionContext<HorsesState, RootState>) {
+		const horseCount = TOTAL_HORSES;
+
+		const shuffledNames = shuffle(HORSE_NAMES);
+		const shuffledColors = shuffle(HORSE_COLORS);
+
+		const horses: Horse[] = [];
+
+		for (let i = 0; i < horseCount; i++) {
+			horses.push({
+				id: `horse-${i + 1}`,
+				name: shuffledNames[i],
+				color: shuffledColors[i],
+				condition: randomInt(1, 100)
+			});
+		}
+
+		commit(MUTATIONS.SET_POOL, { horses });
+	}
+};
