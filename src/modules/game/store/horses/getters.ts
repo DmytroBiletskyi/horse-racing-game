@@ -1,5 +1,5 @@
 import type { GetterTree } from 'vuex';
-import type { HorsesState, RootState } from '@/store/types';
+import type { HorsesState, RootState } from '@/modules/game/store/types';
 import type { Horse, HorseId } from '@/domain/models';
 
 export const getters: GetterTree<HorsesState, RootState> = {

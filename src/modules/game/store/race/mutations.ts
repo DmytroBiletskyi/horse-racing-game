@@ -1,5 +1,5 @@
 import type { MutationTree } from 'vuex';
-import type { RaceState } from '@/store/types';
+import type { RaceState } from '@/modules/game/store/types';
 import {
 	MUTATIONS,
 	type SetStatusPayload,

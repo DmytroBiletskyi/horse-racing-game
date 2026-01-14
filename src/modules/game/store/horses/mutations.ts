@@ -1,5 +1,5 @@
 import type { MutationTree } from 'vuex';
-import type { HorsesState } from '@/store/types';
+import type { HorsesState } from '@/modules/game/store/types';
 import { MUTATIONS, type SetPoolPayload } from './types';
 
 export const mutations: MutationTree<HorsesState> = {

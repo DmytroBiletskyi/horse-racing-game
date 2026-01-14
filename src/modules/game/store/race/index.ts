@@ -1,11 +1,11 @@
 import type { Module } from 'vuex';
-import type { HorsesState, RootState } from '@/store/types';
+import type { RaceState, RootState } from '@/modules/game/store/types';
 import { createState } from './state';
 import { mutations } from './mutations';
 import { actions } from './actions';
 import { getters } from './getters';
 
-export const horsesModule: Module<HorsesState, RootState> = {
+export const raceModule: Module<RaceState, RootState> = {
 	namespaced: true,
 	state: createState,
 	mutations,
@@ -13,4 +13,4 @@ export const horsesModule: Module<HorsesState, RootState> = {
 	getters
 };
 
-export { ACTIONS as HORSE_ACTIONS } from './types';
+export { ACTIONS as RACE_ACTIONS, MUTATIONS as RACE_MUTATIONS } from './types';

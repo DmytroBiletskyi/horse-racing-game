@@ -1,6 +1,6 @@
 import type { Ref } from 'vue';
 import type { Store } from 'vuex';
-import type { RootState } from '@/store/types';
+import type { RootState } from '@/modules/game/store/types';
 import type { Horse, HorseId, HorseProgress } from '@/domain/models';
 import {
 	BASE_SPEED_PX_PER_FRAME,
