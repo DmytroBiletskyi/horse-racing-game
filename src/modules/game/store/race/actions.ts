@@ -1,5 +1,5 @@
 import type { ActionTree, ActionContext } from 'vuex';
-import type { RaceState, RootState } from '@/store/types';
+import type { RaceState, RootState } from '@/modules/game/store/types';
 import type { Horse, HorseId, HorseProgress, RoundProgram, RoundResult, RoundResultRow } from '@/domain/models';
 import { ROUND_DISTANCES, TOTAL_ROUNDS, HORSES_PER_ROUND } from '@/domain/constants';
 import { pickUnique, randomRange } from '@/domain/utils';

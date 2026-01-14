@@ -1,5 +1,5 @@
 import type { ActionTree, ActionContext } from 'vuex';
-import type { HorsesState, RootState } from '@/store/types';
+import type { HorsesState, RootState } from '@/modules/game/store/types';
 import type { Horse } from '@/domain/models';
 import { HORSE_COLORS, HORSE_NAMES, TOTAL_HORSES } from '@/domain/constants';
 import { randomInt, shuffle } from '@/domain/utils';

@@ -1,4 +1,4 @@
-import type { RaceState } from '@/store/types';
+import type { RaceState } from '@/modules/game/store/types';
 
 export function createState(): RaceState {
 	return {

@@ -1,8 +1,8 @@
 import { createStore, Store, useStore as baseUseStore } from 'vuex';
 import type { InjectionKey } from 'vue';
-import type { RootState } from './types';
-import { horsesModule } from './modules/horses';
-import { raceModule } from './modules/race';
+import type { RootState } from '@/modules/game/store/types';
+import { horsesModule } from '@/modules/game/store/horses';
+import { raceModule } from '@/modules/game/store/race';
 
 export const key: InjectionKey<Store<RootState>> = Symbol('vuex-store');
 
@@ -18,6 +18,6 @@ export function useStore(): Store<RootState> {
 	return baseUseStore(key);
 }
 
-export * from './types';
-export { HORSE_ACTIONS } from './modules/horses';
-export { RACE_ACTIONS, RACE_MUTATIONS } from './modules/race';
+export * from '@/modules/game/store/types';
+export { HORSE_ACTIONS } from '@/modules/game/store/horses';
+export { RACE_ACTIONS, RACE_MUTATIONS } from '@/modules/game/store/race';
