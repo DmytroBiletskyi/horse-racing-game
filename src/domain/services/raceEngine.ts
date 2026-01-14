@@ -18,78 +18,77 @@ export interface RaceEngineOptions {
 	trackWidthRef: Ref<number>;
 }
 
-export class RaceEngine {
-	private store: Store<RootState>;
-	private trackWidthRef: Ref<number>;
-	private rafId: number | null = null;
-	private isAnimating = false;
+export type RaceEngineService = {
+	start(): void;
+	pause(): void;
+	resume(): void;
+	stop(): void;
+};
 
-	constructor(options: RaceEngineOptions) {
-		this.store = options.store;
-		this.trackWidthRef = options.trackWidthRef;
-	}
+export const createRaceEngineService = (options: RaceEngineOptions): RaceEngineService => {
+	const store = options.store;
+	const trackWidthRef = options.trackWidthRef;
 
-	private get finishLineX(): number {
-		return this.trackWidthRef.value - TRACK_PADDING_PX;
-	}
+	let rafId: number | null = null;
+	let isAnimating = false;
 
-	private getConditionMultiplier(condition: number): number {
+	const getFinishLineX = (): number => trackWidthRef.value - TRACK_PADDING_PX;
+
+	const getConditionMultiplier = (condition: number): number => {
 		const normalized = (condition - 1) / 99;
 		return CONDITION_SPEED_MIN + normalized * (CONDITION_SPEED_MAX - CONDITION_SPEED_MIN);
-	}
+	};
 
-	private calculateSpeed(progress: HorseProgress, horse: { condition: number }): number {
-		const conditionMultiplier = this.getConditionMultiplier(horse.condition);
+	const calculateSpeed = (progress: HorseProgress, horse: { condition: number }): number => {
+		const conditionMultiplier = getConditionMultiplier(horse.condition);
 		const jitter = randomRange(-JITTER_RANGE, JITTER_RANGE);
 		return BASE_SPEED_PX_PER_FRAME * conditionMultiplier * progress.speedFactor + jitter;
-	}
+	};
 
-	start(): void {
-		if (this.isAnimating) {
+	const pause = (): void => {
+		isAnimating = false;
+
+		if (rafId !== null) {
+			cancelAnimationFrame(rafId);
+			rafId = null;
+		}
+	};
+
+	const handleRoundEnd = (): void => {
+		isAnimating = false;
+
+		store.dispatch(`race/${RACE_ACTIONS.FINISH_ROUND}`);
+
+		setTimeout(() => {
+			const raceState = store.state.race;
+
+			if (raceState.currentRoundIndex < raceState.program.length - 1) {
+				store.dispatch(`race/${RACE_ACTIONS.NEXT_ROUND}`);
+				start();
+			} else {
+				store.commit(`race/${RACE_MUTATIONS.SET_STATUS}`, { status: 'finished' });
+			}
+		}, ROUND_END_DELAY_MS);
+	};
+
+	const animate = (): void => {
+		if (!isAnimating) {
 			return;
 		}
-		this.isAnimating = true;
-		this.animate();
-	}
 
-	pause(): void {
-		this.isAnimating = false;
-		if (this.rafId !== null) {
-			cancelAnimationFrame(this.rafId);
-			this.rafId = null;
-		}
-	}
-
-	resume(): void {
-		if (this.isAnimating) {
-			return;
-		}
-		this.isAnimating = true;
-		this.animate();
-	}
-
-	stop(): void {
-		this.pause();
-	}
-
-	private animate = (): void => {
-		if (!this.isAnimating) {
-			return;
-		}
-
-		const raceState = this.store.state.race;
+		const raceState = store.state.race;
 		if (raceState.status !== 'running') {
-			this.rafId = requestAnimationFrame(this.animate);
+			rafId = requestAnimationFrame(animate);
 			return;
 		}
 
 		const horseMap: Record<HorseId, Horse> = {};
-		this.store.state.horses.pool.forEach((h: Horse) => {
+		store.state.horses.pool.forEach((h: Horse) => {
 			horseMap[h.id] = h;
 		});
 
 		let allFinished = true;
-		const finishX = this.finishLineX;
+		const finishX = getFinishLineX();
 		const currentTime = performance.now();
 		const roundStartTime = raceState.roundStartTime ?? currentTime;
 
@@ -103,17 +102,17 @@ export class RaceEngine {
 				return;
 			}
 
-			const speed = this.calculateSpeed(progress, horse);
+			const speed = calculateSpeed(progress, horse);
 			const newX = clamp(progress.xPx + speed, 0, finishX);
 
 			if (newX >= finishX && progress.finishedAtMs === null) {
-				this.store.commit(`race/${RACE_MUTATIONS.UPDATE_HORSE_POSITION}`, {
+				store.commit(`race/${RACE_MUTATIONS.UPDATE_HORSE_POSITION}`, {
 					horseId,
 					xPx: finishX,
 					finishedAtMs: currentTime - roundStartTime
 				});
 			} else {
-				this.store.commit(`race/${RACE_MUTATIONS.UPDATE_HORSE_POSITION}`, {
+				store.commit(`race/${RACE_MUTATIONS.UPDATE_HORSE_POSITION}`, {
 					horseId,
 					xPx: newX
 				});
@@ -122,31 +121,41 @@ export class RaceEngine {
 		});
 
 		if (allFinished) {
-			this.handleRoundEnd();
+			handleRoundEnd();
 			return;
 		}
 
-		this.rafId = requestAnimationFrame(this.animate);
+		rafId = requestAnimationFrame(animate);
 	};
 
-	private handleRoundEnd(): void {
-		this.isAnimating = false;
+	const start = (): void => {
+		if (isAnimating) {
+			return;
+		}
+		isAnimating = true;
+		animate();
+	};
 
-		this.store.dispatch(`race/${RACE_ACTIONS.FINISH_ROUND}`);
+	const resume = (): void => {
+		if (isAnimating) {
+			return;
+		}
+		isAnimating = true;
+		animate();
+	};
 
-		setTimeout(() => {
-			const raceState = this.store.state.race;
-			if (raceState.currentRoundIndex < raceState.program.length - 1) {
-				this.store.dispatch(`race/${RACE_ACTIONS.NEXT_ROUND}`);
-				this.start();
-			} else {
-				this.store.commit(`race/${RACE_MUTATIONS.SET_STATUS}`, { status: 'finished' });
-			}
-		}, ROUND_END_DELAY_MS);
-	}
-}
+	const stop = (): void => {
+		pause();
+	};
 
-export function useRaceEngine(store: Store<RootState>, trackWidthRef: Ref<number>): RaceEngine {
-	const engine = new RaceEngine({ store, trackWidthRef });
-	return engine;
+	return {
+		start,
+		pause,
+		resume,
+		stop
+	};
+};
+
+export function useRaceEngine(store: Store<RootState>, trackWidthRef: Ref<number>): RaceEngineService {
+	return createRaceEngineService({ store, trackWidthRef });
 }
