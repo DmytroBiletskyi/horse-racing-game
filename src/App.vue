@@ -1,7 +1,7 @@
-<script setup lang="ts">
-	import GamePage from '@/modules/game';
-</script>
-
 <template>
-	<GamePage />
+	<RouterView />
 </template>
+
+<style lang="css">
+	@import '@/assets/css/shared.css';
+</style>
