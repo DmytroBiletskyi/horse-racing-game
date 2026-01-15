@@ -8,6 +8,7 @@
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint . --fix",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "format": "prettier --write src/"
   },
   "dependencies": {
@@ -15,6 +16,7 @@
     "vuex": "^4.1.0"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/node": "^20.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
@@ -23,7 +25,9 @@
     "@vue/eslint-config-typescript": "^14.6.0",
     "eslint": "^9.39.2",
     "eslint-plugin-vue": "^9.22.0",
+    "jest": "^30.2.0",
     "prettier": "^3.2.5",
+    "ts-jest": "^29.4.6",
     "typescript": "^5.3.3",
     "vite": "^5.1.6",
     "vue-tsc": "^2.0.6"
