@@ -32,6 +32,11 @@ export const createRaceEngineService = (options: RaceEngineOptions): RaceEngineS
 	let rafId: number | null = null;
 	let isAnimating = false;
 
+	let isPaused = false;
+
+	let nextRoundTimeoutId: number | null = null;
+	let isRoundEnding = false;
+
 	const getFinishLineX = (): number => trackWidthRef.value - TRACK_PADDING_PX;
 
 	const getConditionMultiplier = (condition: number): number => {
@@ -45,7 +50,41 @@ export const createRaceEngineService = (options: RaceEngineOptions): RaceEngineS
 		return BASE_SPEED_PX_PER_FRAME * conditionMultiplier * progress.speedFactor + jitter;
 	};
 
+	const advanceAfterRoundEnd = (): void => {
+		nextRoundTimeoutId = null;
+
+		const raceState = store.state.race;
+
+		if (raceState.status === 'paused') {
+			return;
+		}
+
+		isRoundEnding = false;
+
+		if (raceState.currentRoundIndex < raceState.program.length - 1) {
+			store.dispatch(`race/${RACE_ACTIONS.NEXT_ROUND}`);
+
+			const currentState = store.state.race;
+			if (currentState.status === 'running' && !isPaused) {
+				start();
+			}
+		} else {
+			store.commit(`race/${RACE_MUTATIONS.SET_STATUS}`, { status: 'finished' });
+		}
+	};
+
+	const scheduleAdvanceAfterRoundEnd = (delayMs: number): void => {
+		if (nextRoundTimeoutId !== null) {
+			return;
+		}
+
+		nextRoundTimeoutId = window.setTimeout(() => {
+			advanceAfterRoundEnd();
+		}, delayMs);
+	};
+
 	const pause = (): void => {
+		isPaused = true;
 		isAnimating = false;
 
 		if (rafId !== null) {
@@ -55,20 +94,16 @@ export const createRaceEngineService = (options: RaceEngineOptions): RaceEngineS
 	};
 
 	const handleRoundEnd = (): void => {
+		if (isRoundEnding) {
+			return;
+		}
+
+		isRoundEnding = true;
 		isAnimating = false;
 
 		store.dispatch(`race/${RACE_ACTIONS.FINISH_ROUND}`);
 
-		setTimeout(() => {
-			const raceState = store.state.race;
-
-			if (raceState.currentRoundIndex < raceState.program.length - 1) {
-				store.dispatch(`race/${RACE_ACTIONS.NEXT_ROUND}`);
-				start();
-			} else {
-				store.commit(`race/${RACE_MUTATIONS.SET_STATUS}`, { status: 'finished' });
-			}
-		}, ROUND_END_DELAY_MS);
+		scheduleAdvanceAfterRoundEnd(ROUND_END_DELAY_MS);
 	};
 
 	const animate = (): void => {
@@ -76,8 +111,18 @@ export const createRaceEngineService = (options: RaceEngineOptions): RaceEngineS
 			return;
 		}
 
+		if (isPaused) {
+			return;
+		}
+
 		const raceState = store.state.race;
+
 		if (raceState.status !== 'running') {
+			rafId = requestAnimationFrame(animate);
+			return;
+		}
+
+		if (isRoundEnding) {
 			rafId = requestAnimationFrame(animate);
 			return;
 		}
@@ -105,7 +150,7 @@ export const createRaceEngineService = (options: RaceEngineOptions): RaceEngineS
 			const speed = calculateSpeed(progress, horse);
 			const newX = clamp(progress.xPx + speed, 0, finishX);
 
-			if (newX >= finishX && progress.finishedAtMs === null) {
+			if (newX >= finishX) {
 				store.commit(`race/${RACE_MUTATIONS.UPDATE_HORSE_POSITION}`, {
 					horseId,
 					xPx: finishX,
@@ -129,23 +174,48 @@ export const createRaceEngineService = (options: RaceEngineOptions): RaceEngineS
 	};
 
 	const start = (): void => {
+		isPaused = false;
+
 		if (isAnimating) {
 			return;
 		}
+
 		isAnimating = true;
+		isRoundEnding = false;
 		animate();
 	};
 
 	const resume = (): void => {
+		isPaused = false;
+
 		if (isAnimating) {
 			return;
 		}
+
 		isAnimating = true;
+
+		if (isRoundEnding && nextRoundTimeoutId === null) {
+			scheduleAdvanceAfterRoundEnd(0);
+		}
+
 		animate();
 	};
 
 	const stop = (): void => {
-		pause();
+		isPaused = false;
+		isRoundEnding = false;
+
+		if (nextRoundTimeoutId !== null) {
+			clearTimeout(nextRoundTimeoutId);
+			nextRoundTimeoutId = null;
+		}
+
+		isAnimating = false;
+
+		if (rafId !== null) {
+			cancelAnimationFrame(rafId);
+			rafId = null;
+		}
 	};
 
 	return {
