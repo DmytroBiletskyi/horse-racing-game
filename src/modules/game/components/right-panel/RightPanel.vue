@@ -13,7 +13,6 @@
 <style scoped>
 	.right-panel {
 		display: flex;
-		flex-direction: column;
 		gap: var(--space-md);
 		overflow: hidden;
 	}

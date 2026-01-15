@@ -28,7 +28,7 @@
 		<div class="lane-track">
 			<div v-if="horse" class="horse-sprite" :style="horseStyle">
 				<div class="horse-body" :style="{ backgroundColor: horse.color }" :class="{ finished: hasFinished }">
-					<span class="horse-icon">🐎</span>
+					<img src="@/assets/images/horse-image.svg" alt="Horse" class="horse-icon" />
 				</div>
 			</div>
 		</div>
@@ -90,7 +90,9 @@
 	}
 
 	.horse-icon {
-		font-size: 1.25rem;
+		width: 22px;
+		height: 22px;
+		object-fit: contain;
 		filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.3));
 	}
 </style>

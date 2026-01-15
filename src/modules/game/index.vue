@@ -66,7 +66,7 @@
 	.main-grid {
 		flex: 1;
 		display: grid;
-		grid-template-columns: 280px 1fr 360px;
+		grid-template-columns: 280px minmax(400px, 1fr) 420px;
 		gap: var(--space-md);
 		padding: var(--space-md);
 		min-height: 0;
@@ -74,7 +74,7 @@
 
 	@media (max-width: 1200px) {
 		.main-grid {
-			grid-template-columns: 220px 1fr 300px;
+			grid-template-columns: 220px minmax(350px, 1fr) 380px;
 		}
 	}
 

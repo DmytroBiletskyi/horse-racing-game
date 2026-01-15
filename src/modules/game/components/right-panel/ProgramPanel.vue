@@ -159,9 +159,12 @@
 	.round-table th,
 	.round-table td {
 		padding: 2px var(--space-xs);
+		height: 24px;
+		line-height: 20px;
+		vertical-align: middle;
 	}
 
 	.round-table td.truncate {
-		max-width: 120px;
+		max-width: 160px;
 	}
 </style>

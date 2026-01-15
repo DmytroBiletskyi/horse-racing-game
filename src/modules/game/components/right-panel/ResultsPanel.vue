@@ -126,10 +126,13 @@
 	.result-table th,
 	.result-table td {
 		padding: 2px var(--space-xs);
+		height: 24px;
+		line-height: 20px;
+		vertical-align: middle;
 	}
 
 	.result-table td.truncate {
-		max-width: 120px;
+		max-width: 160px;
 	}
 
 	.result-table tr.winner {
@@ -142,6 +145,9 @@
 	}
 
 	.medal {
-		font-size: 0.875rem;
+		font-size: 0.75rem;
+		line-height: 20px;
+		display: inline-block;
+		vertical-align: middle;
 	}
 </style>

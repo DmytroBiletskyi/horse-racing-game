@@ -36,10 +36,14 @@ export const actions: ActionTree<RaceState, RootState> = {
 	},
 
 	[ACTIONS.START_RACE]({ commit, state }: ActionContext<RaceState, RootState>) {
-		if (state.program.length === 0) return;
+		if (state.program.length === 0) {
+			return;
+		}
 
 		const currentRound = state.program[state.currentRoundIndex];
-		if (!currentRound) return;
+		if (!currentRound) {
+			return;
+		}
 
 		const progress = new Map<HorseId, HorseProgress>();
 		currentRound.participantIds.forEach((id: HorseId) => {
@@ -66,7 +70,9 @@ export const actions: ActionTree<RaceState, RootState> = {
 
 	[ACTIONS.FINISH_ROUND]({ commit, state }: ActionContext<RaceState, RootState>) {
 		const currentRound = state.program[state.currentRoundIndex];
-		if (!currentRound) return;
+		if (!currentRound) {
+			return;
+		}
 
 		const finishers: { horseId: HorseId; timeMs: number; xPx: number }[] = [];
 		state.horseProgress.forEach((progress: HorseProgress, horseId: HorseId) => {
@@ -78,7 +84,9 @@ export const actions: ActionTree<RaceState, RootState> = {
 		});
 
 		finishers.sort((a, b) => {
-			if (a.timeMs !== b.timeMs) return a.timeMs - b.timeMs;
+			if (a.timeMs !== b.timeMs) {
+				return a.timeMs - b.timeMs;
+			}
 			return b.xPx - a.xPx;
 		});
 

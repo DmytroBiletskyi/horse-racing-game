@@ -48,7 +48,7 @@
 	<header class="header-bar">
 		<div class="header-left">
 			<h1 class="title">
-				<span class="title-icon">🏇</span>
+				<img src="@/assets/images/horse-image.svg" alt="Horse" class="title-icon" />
 				Horse Racing
 			</h1>
 			<span class="status-badge" :class="raceStatus">
@@ -91,7 +91,9 @@
 	}
 
 	.title-icon {
-		font-size: 1.75rem;
+		width: 28px;
+		height: 28px;
+		object-fit: contain;
 	}
 
 	.status-badge {

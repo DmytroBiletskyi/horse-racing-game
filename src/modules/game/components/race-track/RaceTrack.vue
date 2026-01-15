@@ -104,10 +104,12 @@
 					/>
 				</div>
 			</div>
-			<div class="finish-line" />
+			<div class="finish-line-wrapper">
+				<div class="finish-line" />
+				<div class="finish-label">FINISH</div>
+			</div>
 			<div class="round-label">
 				{{ roundLabel }}
-				<span class="finish-text">FINISH</span>
 			</div>
 		</div>
 	</section>
@@ -157,11 +159,23 @@
 		border-radius: var(--radius-sm) 0 0 var(--radius-sm);
 	}
 
-	.finish-line {
+	.finish-line-wrapper {
 		position: absolute;
 		right: 60px;
 		top: 0;
 		bottom: 0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: flex-end;
+		padding-bottom: var(--space-md);
+		width: 6px;
+	}
+
+	.finish-line {
+		position: absolute;
+		top: 0;
+		bottom: 54px;
 		width: 6px;
 		background: repeating-linear-gradient(
 			to bottom,
@@ -171,6 +185,22 @@
 			white 20px
 		);
 		box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+	}
+
+	.finish-label {
+		position: relative;
+		font-family: var(--font-display);
+		font-size: 1.25rem;
+		font-weight: bold;
+		color: var(--accent-red);
+		letter-spacing: 0.1em;
+		white-space: nowrap;
+		background: rgba(0, 0, 0, 0.7);
+		padding: var(--space-xs) var(--space-sm);
+		border-radius: var(--radius-sm);
+		display: flex;
+		margin-top: var(--space-sm);
+		z-index: 1;
 	}
 
 	.round-label {
