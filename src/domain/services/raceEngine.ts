@@ -12,6 +12,7 @@ import {
 } from '@/domain/constants';
 import { randomRange, clamp } from '@/domain/utils';
 import { RACE_MUTATIONS, RACE_ACTIONS } from '@/store';
+import { RACE_STATUS } from '@/domain/models/race';
 
 export interface RaceEngineOptions {
 	store: Store<RootState>;
@@ -55,7 +56,7 @@ export const createRaceEngineService = (options: RaceEngineOptions): RaceEngineS
 
 		const raceState = store.state.race;
 
-		if (raceState.status === 'paused') {
+		if (raceState.status === RACE_STATUS.PAUSED) {
 			return;
 		}
 
@@ -65,11 +66,11 @@ export const createRaceEngineService = (options: RaceEngineOptions): RaceEngineS
 			store.dispatch(`race/${RACE_ACTIONS.NEXT_ROUND}`);
 
 			const currentState = store.state.race;
-			if (currentState.status === 'running' && !isPaused) {
+			if (currentState.status === RACE_STATUS.RUNNING && !isPaused) {
 				start();
 			}
 		} else {
-			store.commit(`race/${RACE_MUTATIONS.SET_STATUS}`, { status: 'finished' });
+			store.commit(`race/${RACE_MUTATIONS.SET_STATUS}`, { status: RACE_STATUS.FINISHED });
 		}
 	};
 
@@ -117,7 +118,7 @@ export const createRaceEngineService = (options: RaceEngineOptions): RaceEngineS
 
 		const raceState = store.state.race;
 
-		if (raceState.status !== 'running') {
+		if (raceState.status !== RACE_STATUS.RUNNING) {
 			rafId = requestAnimationFrame(animate);
 			return;
 		}

@@ -1,6 +1,14 @@
 import type { HorseId } from './horse';
 
-export type RaceStatus = 'idle' | 'ready' | 'running' | 'paused' | 'finished';
+export const RACE_STATUS = {
+	IDLE: 'idle',
+	READY: 'ready',
+	RUNNING: 'running',
+	PAUSED: 'paused',
+	FINISHED: 'finished'
+} as const;
+
+export type RaceStatus = (typeof RACE_STATUS)[keyof typeof RACE_STATUS];
 
 export interface RoundSpec {
 	index: number;

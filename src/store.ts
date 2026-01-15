@@ -3,6 +3,7 @@ import type { InjectionKey } from 'vue';
 import type { RootState } from '@/modules/game/store/types';
 import { horsesModule } from '@/modules/game/store/horses';
 import { raceModule } from '@/modules/game/store/race';
+import { isDev } from '@/env';
 
 export const key: InjectionKey<Store<RootState>> = Symbol('vuex-store');
 
@@ -11,7 +12,7 @@ export const store = createStore<RootState>({
 		horses: horsesModule,
 		race: raceModule
 	},
-	strict: import.meta.env.DEV
+	strict: isDev()
 });
 
 export function useStore(): Store<RootState> {

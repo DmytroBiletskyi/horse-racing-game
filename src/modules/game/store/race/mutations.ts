@@ -11,6 +11,7 @@ import {
 	type SetTrackWidthPayload,
 	type SetRoundStartTimePayload
 } from './types';
+import { RACE_STATUS } from '@/domain/models/race';
 
 export const mutations: MutationTree<RaceState> = {
 	[MUTATIONS.SET_STATUS](state: RaceState, payload: SetStatusPayload) {
@@ -56,7 +57,7 @@ export const mutations: MutationTree<RaceState> = {
 	},
 
 	[MUTATIONS.RESET_RACE](state: RaceState) {
-		state.status = 'idle';
+		state.status = RACE_STATUS.IDLE;
 		state.program = [];
 		state.currentRoundIndex = 0;
 		state.results = [];

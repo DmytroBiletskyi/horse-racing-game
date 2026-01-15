@@ -1,28 +1,30 @@
-import type { ActionTree, ActionContext } from 'vuex';
+import type { ActionContext } from 'vuex';
 import type { HorsesState, RootState } from '@/modules/game/store/types';
 import type { Horse } from '@/domain/models';
 import { HORSE_COLORS, HORSE_NAMES, TOTAL_HORSES } from '@/domain/constants';
 import { randomInt, shuffle } from '@/domain/utils';
-import { MUTATIONS, ACTIONS } from './types';
+import { MUTATIONS } from './types';
 
-export const actions: ActionTree<HorsesState, RootState> = {
-	[ACTIONS.GENERATE_POOL]({ commit }: ActionContext<HorsesState, RootState>) {
-		const horseCount = TOTAL_HORSES;
+export type HorsesActionContext = ActionContext<HorsesState, RootState>;
 
-		const shuffledNames = shuffle(HORSE_NAMES);
-		const shuffledColors = shuffle(HORSE_COLORS);
+const generatePool = ({ commit }: HorsesActionContext) => {
+	const horseCount = TOTAL_HORSES;
 
-		const horses: Horse[] = [];
+	const shuffledNames = shuffle(HORSE_NAMES);
+	const shuffledColors = shuffle(HORSE_COLORS);
 
-		for (let i = 0; i < horseCount; i++) {
-			horses.push({
-				id: `horse-${i + 1}`,
-				name: shuffledNames[i],
-				color: shuffledColors[i],
-				condition: randomInt(1, 100)
-			});
-		}
+	const horses: Horse[] = [];
 
-		commit(MUTATIONS.SET_POOL, { horses });
+	for (let i = 0; i < horseCount; i++) {
+		horses.push({
+			id: `horse-${i + 1}`,
+			name: shuffledNames[i],
+			color: shuffledColors[i],
+			condition: randomInt(1, 100)
+		});
 	}
+
+	commit(MUTATIONS.SET_POOL, { horses });
 };
+
+export { generatePool };

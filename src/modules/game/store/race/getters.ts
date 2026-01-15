@@ -1,6 +1,7 @@
 import type { GetterTree } from 'vuex';
 import type { RaceState, RootState } from '@/modules/game/store/types';
 import type { RoundProgram, RoundResult, HorseProgress, RaceStatus, HorseId } from '@/domain/models';
+import { RACE_STATUS } from '@/domain/models/race';
 
 export const getters: GetterTree<RaceState, RootState> = {
 	raceStatus(state: RaceState): RaceStatus {
@@ -32,23 +33,23 @@ export const getters: GetterTree<RaceState, RootState> = {
 	},
 
 	isRunning(state: RaceState): boolean {
-		return state.status === 'running';
+		return state.status === RACE_STATUS.RUNNING;
 	},
 
 	isPaused(state: RaceState): boolean {
-		return state.status === 'paused';
+		return state.status === RACE_STATUS.PAUSED;
 	},
 
 	isReady(state: RaceState): boolean {
-		return state.status === 'ready';
+		return state.status === RACE_STATUS.READY;
 	},
 
 	isFinished(state: RaceState): boolean {
-		return state.status === 'finished';
+		return state.status === RACE_STATUS.FINISHED;
 	},
 
 	canStart(state: RaceState): boolean {
-		return state.status === 'ready' || state.status === 'paused';
+		return state.status === RACE_STATUS.READY || state.status === RACE_STATUS.PAUSED;
 	},
 
 	roundStartTime(state: RaceState): number | null {

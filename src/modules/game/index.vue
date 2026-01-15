@@ -6,6 +6,7 @@
 	import HorseListPanel from './components/horse-list/HorseListPanel.vue';
 	import RaceTrack from './components/race-track/RaceTrack.vue';
 	import RightPanel from './components/right-panel/RightPanel.vue';
+	import { RACE_STATUS } from '@/domain/models/race';
 
 	const store = useStore();
 	const trackWidth = ref(800);
@@ -27,13 +28,13 @@
 	function handleStartPause() {
 		const status = store.state.race.status;
 
-		if (status === 'ready') {
+		if (status === RACE_STATUS.READY) {
 			store.dispatch(`race/${RACE_ACTIONS.START_RACE}`);
 			raceEngine.start();
-		} else if (status === 'running') {
+		} else if (status === RACE_STATUS.RUNNING) {
 			store.dispatch(`race/${RACE_ACTIONS.PAUSE_RACE}`);
 			raceEngine.pause();
-		} else if (status === 'paused') {
+		} else if (status === RACE_STATUS.PAUSED) {
 			store.dispatch(`race/${RACE_ACTIONS.RESUME_RACE}`);
 			raceEngine.resume();
 		}

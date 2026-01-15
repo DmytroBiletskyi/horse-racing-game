@@ -2,6 +2,7 @@
 	import { computed } from 'vue';
 	import { useStore } from '@/store';
 	import type { Horse, HorseId } from '@/domain/models';
+	import { RACE_STATUS, type RaceStatus } from '@/domain/models/race';
 
 	const store = useStore();
 
@@ -24,11 +25,12 @@
 	}
 
 	function isCurrentRound(index: number): boolean {
-		return index === currentRoundIndex.value && ['running', 'paused'].includes(raceStatus.value);
+		const activeStatuses: readonly RaceStatus[] = [RACE_STATUS.RUNNING, RACE_STATUS.PAUSED];
+		return index === currentRoundIndex.value && activeStatuses.includes(raceStatus.value);
 	}
 
 	function isCompletedRound(index: number): boolean {
-		return index < currentRoundIndex.value || raceStatus.value === 'finished';
+		return index < currentRoundIndex.value || raceStatus.value === RACE_STATUS.FINISHED;
 	}
 </script>
 

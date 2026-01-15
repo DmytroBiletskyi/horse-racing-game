@@ -1,6 +1,7 @@
 <script setup lang="ts">
 	import { computed } from 'vue';
 	import { useStore } from '@/store';
+	import { RACE_STATUS, type RaceStatus } from '@/domain/models/race';
 
 	const emit = defineEmits<{
 		(e: 'generate-program'): void;
@@ -12,14 +13,15 @@
 	const raceStatus = computed(() => store.state.race.status);
 
 	const canStartPause = computed(() => {
-		return ['ready', 'running', 'paused'].includes(raceStatus.value);
+		const validStatuses: readonly RaceStatus[] = [RACE_STATUS.READY, RACE_STATUS.RUNNING, RACE_STATUS.PAUSED];
+		return validStatuses.includes(raceStatus.value);
 	});
 
 	const startPauseLabel = computed(() => {
 		switch (raceStatus.value) {
-			case 'running':
+			case RACE_STATUS.RUNNING:
 				return 'Pause';
-			case 'paused':
+			case RACE_STATUS.PAUSED:
 				return 'Resume';
 			default:
 				return 'Start';
@@ -28,15 +30,15 @@
 
 	const statusText = computed(() => {
 		switch (raceStatus.value) {
-			case 'idle':
+			case RACE_STATUS.IDLE:
 				return 'Waiting for program';
-			case 'ready':
+			case RACE_STATUS.READY:
 				return 'Ready to race!';
-			case 'running':
+			case RACE_STATUS.RUNNING:
 				return 'Race in progress...';
-			case 'paused':
+			case RACE_STATUS.PAUSED:
 				return 'Paused';
-			case 'finished':
+			case RACE_STATUS.FINISHED:
 				return 'Race finished!';
 			default:
 				return '';

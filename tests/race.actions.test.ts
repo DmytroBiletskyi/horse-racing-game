@@ -1,7 +1,7 @@
-import { describe, it, jest, expect } from '@jest/globals';
+import { describe, it, beforeEach, jest, expect } from '@jest/globals';
+import type { ActionContext } from 'vuex';
 
-import { actions } from '../src/modules/game/store/race/actions';
-import { MUTATIONS, ACTIONS } from '../src/modules/game/store/race/types';
+import { MUTATIONS } from '../src/modules/game/store/race/types';
 import {
 	ROUND_DISTANCES,
 	TOTAL_ROUNDS,
@@ -9,7 +9,7 @@ import {
 	SPEED_FACTOR_MIN,
 	SPEED_FACTOR_MAX
 } from '../src/domain/constants';
-import type { ActionContext } from 'vuex';
+
 import type { RaceState, RootState } from '../src/modules/game/store/types';
 import type { HorseId, HorseProgress } from '../src/domain/models';
 import type { RoundResultRow } from '../src/domain/models';
@@ -19,10 +19,12 @@ import type {
 	AddResultPayload
 } from '../src/modules/game/store/race/types';
 
-jest.mock('@/domain/utils', () => ({
+await jest.unstable_mockModule('@/domain/utils', () => ({
 	pickUnique: (arr: readonly unknown[], count: number) => (arr as unknown[]).slice(0, count),
 	randomRange: () => 1.0
 }));
+
+const { generateProgram, startRace, finishRound, nextRound } = await import('../src/modules/game/store/race/actions');
 
 function makeHorsePool(total: number) {
 	return Array.from({ length: total }, (_, i) => ({
@@ -43,12 +45,13 @@ describe('race store actions', () => {
 		const commit = jest.fn();
 		const rootState = { horses: { pool: makeHorsePool(20) } };
 
-		actions[ACTIONS.GENERATE_PROGRAM]({ commit, rootState } as ActionContext<RaceState, RootState>);
+		generateProgram({ commit, rootState } as ActionContext<RaceState, RootState>);
 
 		expect(commit.mock.calls[0][0]).toBe(MUTATIONS.RESET_RACE);
 
 		const setProgramCall = commit.mock.calls.find((c) => c[0] === MUTATIONS.SET_PROGRAM);
 		expect(setProgramCall).toBeTruthy();
+
 		const program = (setProgramCall![1] as SetProgramPayload).program;
 		expect(program).toHaveLength(TOTAL_ROUNDS);
 
@@ -56,6 +59,7 @@ describe('race store actions', () => {
 			expect(program[i].round.index).toBe(i);
 			expect(program[i].round.distance).toBe(ROUND_DISTANCES[i]);
 			expect(program[i].participantIds).toHaveLength(HORSES_PER_ROUND);
+
 			expect(program[i].participantIds[0]).toBe('horse-1');
 		}
 
@@ -72,15 +76,18 @@ describe('race store actions', () => {
 				}
 			],
 			currentRoundIndex: 0
-		};
+		} as unknown as RaceState;
 
-		actions[ACTIONS.START_RACE]({ commit, state } as ActionContext<RaceState, RootState>);
+		startRace({ commit, state } as ActionContext<RaceState, RootState>);
 
 		const setProgressCall = commit.mock.calls.find((c) => c[0] === MUTATIONS.SET_HORSE_PROGRESS);
 		expect(setProgressCall).toBeTruthy();
+
 		const progressMap: Map<HorseId, HorseProgress> = (setProgressCall![1] as SetHorseProgressPayload).progress;
+
 		expect(progressMap.size).toBe(3);
 		expect(progressMap.get('horse-1')).toMatchObject({ xPx: 0, finishedAtMs: null });
+
 		expect(progressMap.get('horse-1')?.speedFactor).toBe(1.0);
 		expect(1.0).toBeGreaterThanOrEqual(SPEED_FACTOR_MIN);
 		expect(1.0).toBeLessThanOrEqual(SPEED_FACTOR_MAX);
@@ -99,14 +106,16 @@ describe('race store actions', () => {
 				['horse-2', { horseId: 'horse-2', xPx: 40, finishedAtMs: 850, speedFactor: 1 }],
 				['horse-3', { horseId: 'horse-3', xPx: 10, finishedAtMs: null, speedFactor: 1 }]
 			])
-		};
+		} as unknown as RaceState;
 
-		actions[ACTIONS.FINISH_ROUND]({ commit, state } as ActionContext<RaceState, RootState>);
+		finishRound({ commit, state } as ActionContext<RaceState, RootState>);
 
 		const addResultCall = commit.mock.calls.find((c) => c[0] === MUTATIONS.ADD_RESULT);
 		expect(addResultCall).toBeTruthy();
+
 		const result = (addResultCall![1] as AddResultPayload).result;
 		expect(result.distance).toBe(1200);
+
 		expect(result.rows.map((r: RoundResultRow) => r.horseId)).toEqual(['horse-2', 'horse-1', 'horse-3']);
 		expect(result.rows[0].position).toBe(1);
 	});
@@ -119,9 +128,9 @@ describe('race store actions', () => {
 				{ round: { index: 0, distance: 1200 }, participantIds: ['horse-1'] },
 				{ round: { index: 1, distance: 1400 }, participantIds: ['horse-2'] }
 			]
-		};
+		} as unknown as RaceState;
 
-		actions[ACTIONS.NEXT_ROUND]({ commit, state } as ActionContext<RaceState, RootState>);
+		nextRound({ commit, state } as ActionContext<RaceState, RootState>);
 
 		expect(commit).toHaveBeenCalledWith(MUTATIONS.SET_CURRENT_ROUND, { roundIndex: 1 });
 		expect(commit).toHaveBeenCalledWith(MUTATIONS.SET_STATUS, { status: 'running' });
